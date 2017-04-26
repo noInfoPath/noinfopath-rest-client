@@ -1,5 +1,17 @@
 # NoInfoPath RESTAPI Client
 
+## Overview
+
+This module allow for easy configuration and execution of CRUD (Create, Read, Update and Delete) functions
+against an ODATA V4 compliant RESTAPI.  It support communicating with multiple REST servers via a
+simple JSON configuration schema.  All communications between the client and the servers are via standard
+JWT bearer tokens.
+
+### References
+
+- [JWT](http://jwt.io)
+- [ODATA](http://www.odata.org/)
+
 ## Installation
 
 ```
@@ -31,4 +43,32 @@ describe("Testing restClient", function(){
 
 });
 
+```
+## configuration
+
+```json
+{
+	"debug": {
+		"auth0": {
+			"secret": "SHHHHH",
+			"audience": "MyPeople"
+		},
+		"namespaces": {
+			"foo": {
+				"schema": {
+					"bar": {
+						"entityName": "bar",
+						"primaryKey": "id"
+					}
+				},
+				"rest": {
+					"protocol": "https://",
+					"host": "restapi.my-company.com",
+					"port": 443,
+					"apiPrefix": "/foo/"
+				}
+			}
+		}
+	}
+}
 ```

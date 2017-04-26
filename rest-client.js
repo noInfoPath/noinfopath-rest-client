@@ -18,7 +18,6 @@ function _generateJWT() {
 			"aud": config.auth0.audience,
 			"exp": now.add(14, "d").valueOf()
 		}, base64url.decode(config.auth0.secret));
-
 	return token;
 }
 
