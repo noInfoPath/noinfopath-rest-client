@@ -1,0 +1,24 @@
+{
+	"debug": {
+		"auth0": {
+			"secret": "NTE1Njg2NDFGQTg5MzY1RDhDMjQ5REREQjU1RTE3QUE",
+			"audience": "vO6mYRIAldyw7GP6FUW0WgvU32pFYD6x"
+		},
+		"namespaces": {
+			"sop": {
+				"schema": {
+					"requests": {
+						"entityName": "requests",
+						"primaryKey": "id"
+					}
+				},
+				"rest": {
+					"protocol": "http://",
+					"host": "restapi.sop.heavensentlegal.com",
+					"port": 4000,
+					"apiPrefix": "/sop/"
+				}
+			}
+		}
+	}
+}
