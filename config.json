@@ -1,8 +1,8 @@
 {
 	"debug": {
 		"auth0": {
-			"secret": "NTE1Njg2NDFGQTg5MzY1RDhDMjQ5REREQjU1RTE3QUE",
-			"audience": "vO6mYRIAldyw7GP6FUW0WgvU32pFYD6x"
+			"secret": "shhhh",
+			"audience": "foobar"
 		},
 		"namespaces": {
 			"sop": {
@@ -13,9 +13,9 @@
 					}
 				},
 				"rest": {
-					"protocol": "http://",
-					"host": "restapi.sop.heavensentlegal.com",
-					"port": 4000,
+					"protocol": "https://",
+					"host": "restapi.my-company.com",
+					"port": 443,
 					"apiPrefix": "/sop/"
 				}
 			}
