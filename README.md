@@ -2,7 +2,7 @@
 
 ## Overview
 
-This module allow for easy configuration and execution of CRUD (Create, Read, Update and Delete) functions
+This module allows for easy configuration and execution of CRUD (Create, Read, Update and Delete) functions
 against an ODATA V4 compliant RESTAPI.  It support communicating with multiple REST servers via a
 simple JSON configuration schema.  All communications between the client and the servers are via standard
 JWT bearer tokens.
@@ -44,7 +44,7 @@ describe("Testing restClient", function(){
 });
 
 ```
-## configuration
+## Configuration
 
 ```json
 {
