@@ -13,7 +13,7 @@ function _generateJWT() {
 	var now = moment(),
 		token = jwt.sign({
 			"nameid": "1234",
-			"unique_name": "hsl.service.request@sop.heavensentlegal.com",
+			"unique_name": "foo",
 			"iss": "hsl-sop",
 			"aud": config.auth0.audience,
 			"exp": now.add(14, "d").valueOf()
