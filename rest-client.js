@@ -243,6 +243,7 @@ function _configure(cfg) {
 	return inf;
 }
 
-module.exports = function (cfg) {
+module.exports = function (cfg, accessToken) {
+	_accessToken = accessToken;
 	return _configure(cfg);
 };
