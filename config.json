@@ -1,9 +1,5 @@
 {
 	"debug": {
-		"auth0": {
-			"secret": "shhhh",
-			"audience": "foobar"
-		},
 		"namespaces": {
 			"sop": {
 				"schema": {

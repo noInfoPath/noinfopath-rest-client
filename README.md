@@ -49,10 +49,6 @@ describe("Testing restClient", function(){
 ```json
 {
 	"debug": {
-		"auth0": {
-			"secret": "SHHHHH",
-			"audience": "MyPeople"
-		},
 		"namespaces": {
 			"foo": {
 				"schema": {

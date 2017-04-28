@@ -1,6 +1,6 @@
 {
   "name": "noinfopath-rest-client",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A generic restapi client that allows for easy configuration of target end-points.",
   "main": "rest-client.js",
   "scripts": {
@@ -14,7 +14,8 @@
   "license": "MIT",
   "dependencies": {
     "jsonwebtoken": "^7.4.0",
-    "moment": "^2.18.1"
+    "moment": "^2.18.1",
+    "request": "^2.81.0"
   },
   "devDependencies": {
     "mocha": "^3.3.0"
