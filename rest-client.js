@@ -9,6 +9,7 @@ var moment = require("moment"),
 ;
 
 function _generateJWT(creds) {
+
 	return new Promise(function (resolve, reject) {
 		var request = require("request");
 
@@ -223,7 +224,7 @@ function _destroy(nsName, rest, entity, data) {
 function _configure(cfg) {
 	var inf = {};
 
-	config = cfg;
+	config = Object.assign({}, config, cfg);
 
 	for (var ns in config.namespaces) {
 		var namespace = config.namespaces[ns],
