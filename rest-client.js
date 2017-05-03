@@ -142,7 +142,16 @@ function _request(nsName, rest, entity, data, odata, method) {
 						if (resp.indexOf("<") === 0) {
 							reject(resp); //Received unexpected HTML response
 						} else {
-							resolve(!!resp ? JSON.parse(resp) : []);
+						    var tmp;
+						    
+						    try {
+						        tmp = !!resp ? JSON.parse(resp) : [];	
+						        resolve(tmp);
+						    } catch(err) {
+						        reject(resp);
+						    }
+
+							
 
 						}
 						break;
