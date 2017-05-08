@@ -1,15 +1,15 @@
 var moment = require("moment"),
 	jwt = require('jsonwebtoken'),
 	base64url = require("base64url"),
-	http = require('http'),
-	https = require('https'),
+	request = require("request"),
+	// http = require('http'),
+	// https = require('https'),
 	querystring = require('querystring'),
 	config, _accessToken
 //colors = require('colors/safe')
 ;
 
 function _generateJWT(creds) {
-
 	return new Promise(function (resolve, reject) {
 		var request = require("request");
 
@@ -39,7 +39,24 @@ function _generateJWT(creds) {
 
 function _resolveUrl(nsName, rest, entity, data, method, odata) {
 	var pk = data && typeof (data) === "object" ? data[entity.primaryKey] : data,
-		url;
+		url, protocol, urlPre;
+
+	switch(rest.port) {
+		case "80":
+		case "8080":
+			protocol = "http://";
+			break;
+		case "443":
+		case "8443":
+			protocol = "https://";
+			break;
+
+		default:
+			protocol = "http://";
+			break;
+	}
+
+	urlPre = protocol + rest.host + ":" + rest.port;
 
 	if (entity.endpoint) {
 		url = entity.endpoint.uri;
@@ -78,7 +95,7 @@ function _resolveUrl(nsName, rest, entity, data, method, odata) {
 	}
 
 	//console.log("XXXX", odata, url);
-	return url.replace(/ /gi, "+");
+	return urlPre + url.replace(/ /gi, "+");
 }
 
 function _resolveContentTransferMethod(headers, data) {
@@ -96,14 +113,15 @@ function _resolveContentTransferMethod(headers, data) {
 
 function _request(nsName, rest, entity, data, odata, method) {
 	return new Promise(function (resolve, reject) {
-
+		console.log(process.env.NOINFOPATHDEBUG);
 		function _doRequest() {
 			var url = _resolveUrl(nsName, rest, entity, data, method, odata),
 				options = {
+					rejectUnauthorized: !!!process.env.NOINFOPATHDEBUG,
+					url: url,
 					host: rest.host,
 					port: rest.port,
 					method: method,
-					path: url,
 					headers: {
 						"Content-Type": "application/json",
 						"Authorization": "Bearer " + _accessToken.access_token
@@ -111,71 +129,75 @@ function _request(nsName, rest, entity, data, odata, method) {
 				},
 				resp = "",
 				req,
-				payload = JSON.stringify(data),
-				server = options.port === 443 ? https : http;
+				payload = JSON.stringify(data);
+				//server = [443, 8443].indexOf(options.port) > -1 ? https : http;
 
 			_resolveContentTransferMethod(options.headers, payload);
 
-			req = server.request(options, function (res) {
-				res.on('data', function (chunk) {
-					resp = resp + chunk;
-				});
+			req = request(options, function (err, res, body) {
+				if(err) {
+					reject(err);
+				} else {
 
-				res.on('end', function () {
 					switch (res.statusCode) {
-					case 400:
-					case 500:
-						reject({
-							status: res.statusCode,
-							message: res.statusMessage
-						});
-						break;
-					case 401:
-						reject({
-							status: res.statusCode,
-							message: res.statusMessage
-						});
-						//reject(401);
-						break;
-					default:
+						case 400:
+						case 500:
+							reject({
+								status: res.statusCode,
+								message: res.statusMessage
+							});
+							break;
+						case 401:
+							reject({
+								status: res.statusCode,
+								message: res.statusMessage
+							});
+							//reject(401);
+							break;
+						default:
 
-						if (resp.indexOf("<") === 0) {
-							reject(resp); //Received unexpected HTML response
-						} else {
-						    var tmp;
-						    
-						    try {
-						        tmp = !!resp ? JSON.parse(resp) : [];	
-						        resolve(tmp);
-						    } catch(err) {
-						        reject(resp);
-						    }
+							if (body.indexOf("<") === 0) {
+								reject(body); //Received unexpected HTML response
+							} else {
+							    var tmp;
 
-							
-
-						}
-						break;
+							    try {
+							        tmp = !!body ? JSON.parse(body) : [];
+							        resolve(tmp);
+							    } catch(err) {
+							        reject(body);
+							    }
+							}
+							break;
 					}
 
-				});
-
-				res.on("error", function (err) {
-					console.error(arguments);
-					reject(err);
-				});
+				}
+				// res.on('data', function (chunk) {
+				// 	resp = resp + chunk;
+				// });
+				//
+				// res.on('end', function () {
+				// 	console.log("XXXXXXX", res.headers);
+				//
+				// });
+				//
+				// res.on("error", function (err) {
+				// 	console.error(arguments);
+				// 	reject(err);
+				// });
 			});
 
 
-			req.on('error', function (err) {
-				//console.error("HTTP Request Error", namespace.name, err);
-				reject(err);
-			});
+			// req.on('error', function (err) {
+			// 	//console.error("HTTP Request Error", namespace.name, err);
+			// 	reject(err);
+			// });
 
-			if (payload) {
-				req.write(payload);
-			}
+			// if (payload) {
+			// 	req.write(payload);
+			// }
 
-			req.end();
+
 		}
 
 		if(_accessToken) {
@@ -206,6 +228,7 @@ function _create(nsName, rest, entity, data) {
 }
 
 function _read(nsName, rest, entity, odata) {
+	console.log(odata);
 	return _request(nsName, rest, entity, null, odata, "GET");
 }
 
