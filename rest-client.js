@@ -152,7 +152,6 @@ function _request(nsName, rest, entity, data, odata, method) {
 								status: res.statusCode,
 								message: res.statusMessage
 							});
-							//reject(401);
 							break;
 						default:
 
@@ -172,31 +171,7 @@ function _request(nsName, rest, entity, data, odata, method) {
 					}
 
 				}
-				// res.on('data', function (chunk) {
-				// 	resp = resp + chunk;
-				// });
-				//
-				// res.on('end', function () {
-				// 	console.log("XXXXXXX", res.headers);
-				//
-				// });
-				//
-				// res.on("error", function (err) {
-				// 	console.error(arguments);
-				// 	reject(err);
-				// });
 			});
-
-
-			// req.on('error', function (err) {
-			// 	//console.error("HTTP Request Error", namespace.name, err);
-			// 	reject(err);
-			// });
-
-			// if (payload) {
-			// 	req.write(payload);
-			// }
-
 
 		}
 
@@ -215,7 +190,7 @@ function _request(nsName, rest, entity, data, odata, method) {
 
 function _scrubData(data) {
 	for (var p in data) {
-		if (!!data[p].toJSON) {
+		if (!!data && !!data[p] && !!data[p].toJSON) {
 			data[p] = data[p].toJSON().replace(/T/gi, " ").replace(/Z/, "");
 		}
 	}
