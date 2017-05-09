@@ -113,7 +113,7 @@ function _resolveContentTransferMethod(headers, data) {
 
 function _request(nsName, rest, entity, data, odata, method) {
 	return new Promise(function (resolve, reject) {
-		console.log(process.env.NOINFOPATHDEBUG);
+		//console.log(process.env.NOINFOPATHDEBUG);
 		function _doRequest() {
 			var url = _resolveUrl(nsName, rest, entity, data, method, odata),
 				options = {
