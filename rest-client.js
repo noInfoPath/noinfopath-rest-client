@@ -117,6 +117,7 @@ function _request(nsName, rest, entity, data, odata, method) {
 		function _doRequest() {
 			var url = _resolveUrl(nsName, rest, entity, data, method, odata),
 				options = {
+					followAllRedirects: true,
 					rejectUnauthorized: !!!process.env.NOINFOPATHDEBUG,
 					url: url,
 					host: rest.host,
