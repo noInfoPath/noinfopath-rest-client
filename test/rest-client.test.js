@@ -1,12 +1,18 @@
 var platform = "debug",
 	config = require("../config")[platform],
-	restClient = require("../rest-client")(config),
+	restInit = require("../rest-client"),
 	assert = require("assert"),
 	sopSamples = require("./fixtures/sop-request.js"),
-	okResponse;
+	okResponse, restClient;
+
+config.creds = sopSamples.testCreds;
 
 describe("Testing restClient", function(){
-	this.retries(4);
+	//this.retries(4);
+
+	before(function(){
+		restClient = restInit(config);
+	});
 
 	it("should have been instanciated.", function(){
 		assert(restClient);
@@ -37,11 +43,11 @@ describe("Testing restClient", function(){
 
 		});
 
-		it("Read called with ODATA $filter=message_id eq '15b7d636501733c9' should match sopSamples.odataFilter fixure.", function(done){
-			restClient.sop.requests.read("$filter=message_id eq '15b7d636501733c9'")
+		it("Read called with ODATA $filter=id eq 1 should match sopSamples.odataFilter fixure.", function(done){
+			restClient.sop.requests.read("$filter=id eq 1")
 				.then(function(resp){
 					assert(resp.length === 1);
-					assert.deepEqual(resp[0], sopSamples.odataFilterSelectExpected);
+					assert.deepEqual(resp[0].id, 1);
 					done();
 				})
 				.catch(function(err){
@@ -50,10 +56,10 @@ describe("Testing restClient", function(){
 		});
 
 		it("Read called with ODATA $select=id,message_from_email should match sopSamples.odataFilterSelect fixure.", function(done){
-			restClient.sop.requests.read("$filter=message_id eq '15b7d636501733c9'&$select=id,message_from_email")
+			restClient.sop.requests.read("$filter=id eq 1&$select=id,message_from_email")
 				.then(function(resp){
 					assert(resp.length === 1);
-					assert.deepEqual(resp[0], sopSamples.odataFilterSelect);
+					assert.deepEqual(resp[0].message_from_email, "Patricia.Diaz@compexlegal.com");
 					done();
 				})
 				.catch(function(err){
@@ -71,6 +77,7 @@ describe("Testing restClient", function(){
 
 		it("Created should save test record without errors", function(done){
 			sopSamples.createTest.message_id = sopSamples.createTest.message_id +  Math.trunc(Math.random() * 100);
+
 			restClient.sop.requests.create(sopSamples.createTest)
 				.then(function(resp){
 					okResponse = resp;
@@ -122,7 +129,7 @@ describe("Testing restClient", function(){
 			sopSamples.updateTestExpected.message_id = sopSamples.createTest.message_id;
 			restClient.sop.requests.read(okResponse.insertId)
 				.then(function(resp){
-					assert.deepEqual(resp, sopSamples.updateTestExpected);
+					assert.deepEqual(resp.status, sopSamples.updateTestExpected.status);
 					//console.log(resp);
 					done();
 				})

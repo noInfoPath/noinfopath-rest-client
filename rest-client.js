@@ -41,13 +41,13 @@ function _resolveUrl(nsName, rest, entity, data, method, odata) {
 	var pk = data && typeof (data) === "object" ? data[entity.primaryKey] : data,
 		url, protocol, urlPre;
 
-	switch(rest.port) {
-		case "80":
-		case "8080":
+	switch(Number(rest.port)) {
+		case 80:
+		case 8080:
 			protocol = "http://";
 			break;
-		case "443":
-		case "8443":
+		case 443:
+		case 8443:
 			protocol = "https://";
 			break;
 
@@ -129,16 +129,20 @@ function _request(nsName, rest, entity, data, odata, method) {
 				},
 				resp = "",
 				req,
-				payload = JSON.stringify(data);
+				payload = data ? JSON.stringify(data) : undefined;
 				//server = [443, 8443].indexOf(options.port) > -1 ? https : http;
 
-			_resolveContentTransferMethod(options.headers, payload);
+			if(payload) {
+				_resolveContentTransferMethod(options.headers, payload);
+				options.json = true;
+				options.body = JSON.parse(payload);
+			}
 
 			req = request(options, function (err, res, body) {
 				if(err) {
 					reject(err);
 				} else {
-
+				//console.error("XXXX", res.statusCode);
 					switch (res.statusCode) {
 						case 400:
 						case 500:
@@ -154,18 +158,21 @@ function _request(nsName, rest, entity, data, odata, method) {
 							});
 							break;
 						default:
-
-							if (body.indexOf("<") === 0) {
-								reject(body); //Received unexpected HTML response
+							if(typeof(body) === "object") {
+								resolve(body);
 							} else {
-							    var tmp;
+								if (body.indexOf("<") === 0) {
+									reject(body); //Received unexpected HTML response
+								} else {
+									var tmp;
 
-							    try {
-							        tmp = !!body ? JSON.parse(body) : [];
-							        resolve(tmp);
-							    } catch(err) {
-							        reject(body);
-							    }
+									try {
+										tmp = !!body ? JSON.parse(body) : [];
+										resolve(tmp);
+									} catch(err) {
+										reject(body);
+									}
+								}
 							}
 							break;
 					}
@@ -199,11 +206,11 @@ function _scrubData(data) {
 }
 
 function _create(nsName, rest, entity, data) {
+
 	return _request(nsName, rest, entity, _scrubData(data), null, "POST");
 }
 
 function _read(nsName, rest, entity, odata) {
-	console.log(odata);
 	return _request(nsName, rest, entity, null, odata, "GET");
 }
 

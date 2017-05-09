@@ -50,5 +50,10 @@ module.exports = {
 		"message_subject": "Idalid Escamilla v. Taqueria La Victoria, Maria Garcia, and Carmen Berenice Munoz (5774.001)",
 		"status": "old",
 		"message_from_name": "Jeffrey Gochin"
+	},
+	testCreds: {
+		cid: "RewW1w40CQKa4gyEn0RQq87CJ4KZmrDf",
+		cs: "gboEYEpUlAVFYQQ4ou9oRev98xAHLEt6xIQTu_00Ef1VC0TDLDM33pRdJXnBtYLh",
+		aud: "https://restapi.sop.heavensentlegal.com"
 	}
 };

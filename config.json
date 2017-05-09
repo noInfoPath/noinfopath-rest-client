@@ -10,8 +10,8 @@
 				},
 				"rest": {
 					"protocol": "https://",
-					"host": "restapi.my-company.com",
-					"port": 443,
+					"host": "restapi.sop.hsl.test",
+					"port": 8443,
 					"apiPrefix": "/sop/"
 				}
 			}
