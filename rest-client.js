@@ -158,22 +158,30 @@ function _request(nsName, rest, entity, data, odata, method) {
 							});
 							break;
 						default:
-							if(typeof(body) === "object") {
-								resolve(body);
-							} else {
-								if (body.indexOf("<") === 0) {
-									reject(body); //Received unexpected HTML response
+							if(body) {
+								if(typeof(body) === "object") {
+									resolve(body);
 								} else {
-									var tmp;
+									if (body.indexOf("<") === 0) {
+										reject(body); //Received unexpected HTML response
+									} else {
+										var tmp;
 
-									try {
-										tmp = !!body ? JSON.parse(body) : [];
-										resolve(tmp);
-									} catch(err) {
-										reject(body);
+										try {
+											tmp = !!body ? JSON.parse(body) : [];
+											resolve(tmp);
+										} catch(err) {
+											reject(body);
+										}
 									}
 								}
+							} else{
+								resolve({
+									status: res.statusCode,
+									message: "Unknow condition."
+								});
 							}
+
 							break;
 					}
 
