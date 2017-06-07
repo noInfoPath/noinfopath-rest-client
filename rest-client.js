@@ -177,9 +177,9 @@ function _request(nsName, rest, entity, data, odata, method) {
 									}
 								}
 							} else{
-								resolve({
+								reject({
 									status: res.statusCode,
-									message: "Unknow condition."
+									message: "Unknown condition."
 								});
 							}
 
