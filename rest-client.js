@@ -102,11 +102,13 @@ function _resolveContentTransferMethod(headers, data) {
 	if (data) {
 		var l = Buffer.byteLength(data);
 
-		if (l > 4000) {
-			headers['Transfer-Encoding'] = 'chunked';
-		} else {
+		// we took out the Transfer Encoding chunked because it was causing socket hangups
+		// and we could not understand why
+		// if (l > 4000) {
+		// 	headers['Transfer-Encoding'] = 'chunked';
+		// } else {
 			headers['Content-Length'] = l;
-		}
+		// }
 	}
 
 }
