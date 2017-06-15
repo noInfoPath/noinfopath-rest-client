@@ -58,11 +58,11 @@ function _resolveUrl(nsName, rest, entity, data, method, odata) {
 
 	urlPre = protocol + rest.host + ":" + rest.port;
 
-	if (entity.endpoint) {
-		url = entity.endpoint.uri;
+	if (entity.uri) {
+		url = entity.uri;
 	} else {
 		if (rest.apiPrefix) {
-			url = rest.apiPrefix;
+			url = rest.apiPrefix + entity.entityName;
 		} else {
 			url = nsName ? "/" + nsName + "/" : "/";
 		}
@@ -81,15 +81,13 @@ function _resolveUrl(nsName, rest, entity, data, method, odata) {
 	} else {
 		if (odata) {
 			if (Number.isNaN(Number(odata)) && odata.indexOf("$") === 0) {
-				url += entity.entityName + "?" + odata;
+				url += "?" + odata;
 			} else {
-				url += entity.entityName + "/" + odata;
+				url += "/" + odata;
 			}
 		} else {
 			if (["PUT", "PATCH", "DELETE"].indexOf(method) > -1) {
-				url += entity.entityName + "/" + pk;
-			} else {
-				url += entity.entityName;
+				url += "/" + pk;
 			}
 		}
 	}
