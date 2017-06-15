@@ -73,10 +73,10 @@ function _resolveUrl(nsName, rest, entity, data, method, odata) {
 		case "PUT":
 		case "PATCH":
 		case "DELETE":
-			url += entity.entityName + "(guid'" + pk + "')";
+			url += "(guid'" + pk + "')";
 			break;
 		default:
-			url += entity.entityName + (odata || "");
+			url += (odata || "");
 		}
 	} else {
 		if (odata) {
