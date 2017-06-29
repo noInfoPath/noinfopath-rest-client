@@ -182,8 +182,16 @@ function _request(nsName, rest, entity, data, odata, method) {
 				},
 				resp = "",
 				req,
-				payload = data ? JSON.stringify(data) : undefined;
+				payload;
 				//server = [443, 8443].indexOf(options.port) > -1 ? https : http;
+
+			if(data){
+				if(method === "POST") data.CreatedBy = _accessToken.user_id;
+
+				data.ModifiedBy = _accessToken.user_id;
+	
+				payload = JSON.stringify(data);
+			}
 
 			if(payload) {
 				_resolveContentTransferMethod(options.headers, payload);
