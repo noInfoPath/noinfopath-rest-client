@@ -10,6 +10,7 @@ var moment = require("moment"),
 ;
 
 function _generateJWT(creds) {
+
 	return new Promise(function (resolve, reject) {
 		var request = require("request");
 
@@ -113,7 +114,7 @@ function _resolveContentTransferMethod(headers, data) {
 
 function _request(nsName, rest, entity, data, odata, method) {
 	return new Promise(function (resolve, reject) {
-		//console.log(process.env.NOINFOPATHDEBUG);
+		//console.log("NOINFOPATHDEBUG", process.env.NOINFOPATHDEBUG);
 		function _doRequest() {
 			var url = _resolveUrl(nsName, rest, entity, data, method, odata),
 				options = {
@@ -254,13 +255,19 @@ function _configure(cfg) {
 			nsInf = inf[ns] = {};
 
 		for (var s in namespace.schema) {
-			var schema = namespace.schema[s],
-				schemaInf = nsInf[s] = {
+
+			var schema = namespace.schema[s];
+
+			if(schema.nsPrefix === ns) {
+				nsInf[s] = {
 					create: _create.bind(null, ns, namespace.rest, schema),
 					read: _read.bind(null, ns, namespace.rest, schema),
 					update: _update.bind(null, ns, namespace.rest, schema),
 					destroy: _destroy.bind(null, ns, namespace.rest, schema)
 				};
+			}
+
+
 		}
 	}
 
