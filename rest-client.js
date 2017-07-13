@@ -289,8 +289,8 @@ function _read(nsName, rest, entity, odata) {
 	return _request(nsName, rest, entity, null, odata, "GET");
 }
 
-function _update(nsName, rest, entity, data) {
-	return _request(nsName, rest, entity, _scrubData(data), null, "PUT");
+function _update(nsName, rest, entity, data, odata) {
+	return _request(nsName, rest, entity, _scrubData(data), odata, "PUT");
 }
 
 function _destroy(nsName, rest, entity, data) {
