@@ -48,23 +48,29 @@ function _resolveUri(entity, method, odata) {
 
 			entity.uri.forEach(function(uri){
 				if(!found && uri.method === method) {
-					var temp = uri.uri.split("/"),
-						score = Object.keys(odata).length,
-						match = true;
+					if(odata) {
+						var temp = uri.uri.split("/"),
+							score = Object.keys(odata).length,
+							match = true;
 
-					for(var i = 0; i < temp.length; i++){
-						var t = temp[i];
-						if(t.substring(0,1) === ":"){
-							if(odata[t.substring(1)]){
-								score--;
-							} else {
-								match = false;
-								break;
+						for(var i = 0; i < temp.length; i++){
+							var t = temp[i];
+							if(t.substring(0,1) === ":"){
+								if(odata[t.substring(1)]){
+									score--;
+								} else {
+									match = false;
+									break;
+								}
 							}
 						}
-					}
 
-					if(match && score === 0){
+						if(match && score === 0){
+							ro = Object.assign({}, entity);
+							ro.uri = uri.uri;
+							found = true;
+						}
+					} else {
 						ro = Object.assign({}, entity);
 						ro.uri = uri.uri;
 						found = true;
@@ -190,7 +196,7 @@ function _request(nsName, rest, entity, data, odata, method) {
 				if(method === "POST") data.CreatedBy = _accessToken.user_id;
 
 				data.ModifiedBy = _accessToken.user_id;
-	
+
 				payload = JSON.stringify(data);
 			}
 
@@ -284,8 +290,8 @@ function _read(nsName, rest, entity, odata) {
 	return _request(nsName, rest, entity, null, odata, "GET");
 }
 
-function _update(nsName, rest, entity, data) {
-	return _request(nsName, rest, entity, _scrubData(data), null, "PUT");
+function _update(nsName, rest, entity, data, odata) {
+	return _request(nsName, rest, entity, _scrubData(data), odata, "PUT");
 }
 
 function _destroy(nsName, rest, entity, data) {

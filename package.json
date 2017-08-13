@@ -1,6 +1,6 @@
 {
   "name": "noinfopath-rest-client",
-  "version": "1.0.17",
+  "version": "1.0.19",
   "description": "A generic restapi client that allows for easy configuration of target end-points.",
   "main": "rest-client.js",
   "scripts": {
