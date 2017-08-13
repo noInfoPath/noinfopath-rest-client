@@ -38,6 +38,51 @@ function _generateJWT(creds) {
 	});
 }
 
+function _resolveUri(entity, method, odata) {
+	if(entity.uri){
+		if(typeof(entity.uri) === "string") {
+			return Object.assign({}, entity);
+		} else {
+			var found = false,
+				ro;
+
+			entity.uri.forEach(function(uri){
+				if(!found && uri.method === method) {
+					var temp = uri.uri.split("/"),
+						score = Object.keys(odata).length,
+						match = true;
+
+					for(var i = 0; i < temp.length; i++){
+						var t = temp[i];
+						if(t.substring(0,1) === ":"){
+							if(odata[t.substring(1)]){
+								score--;
+							} else {
+								match = false;
+								break;
+							}
+						}
+					}
+
+					if(match && score === 0){
+						ro = Object.assign({}, entity);
+						ro.uri = uri.uri;
+						found = true;
+					}
+				}
+			});
+
+			if(ro){
+				return ro;
+			} else {
+				throw "No valid uri found. Check parameters and try again.";
+			}
+		}
+	} else {
+		return Object.assign({}, entity);
+	}
+}
+
 function _resolveUrl(nsName, rest, entity, data, method, odata) {
 	var pk = data && typeof (data) === "object" ? data[entity.primaryKey] : data,
 		url, protocol, urlPre;
@@ -59,11 +104,11 @@ function _resolveUrl(nsName, rest, entity, data, method, odata) {
 
 	urlPre = protocol + rest.host + ":" + rest.port;
 
-	if (entity.endpoint) {
-		url = entity.endpoint.uri;
+	if (entity.uri) {
+		url = entity.uri;
 	} else {
 		if (rest.apiPrefix) {
-			url = rest.apiPrefix;
+			url = rest.apiPrefix + entity.entityName;
 		} else {
 			url = nsName ? "/" + nsName + "/" : "/";
 		}
@@ -74,23 +119,27 @@ function _resolveUrl(nsName, rest, entity, data, method, odata) {
 		case "PUT":
 		case "PATCH":
 		case "DELETE":
-			url += entity.entityName + "(guid'" + pk + "')";
+			url += "(guid'" + pk + "')";
 			break;
 		default:
-			url += entity.entityName + (odata || "");
+			url += (odata || "");
 		}
 	} else {
 		if (odata) {
-			if (Number.isNaN(Number(odata)) && odata.indexOf("$") === 0) {
-				url += entity.entityName + "?" + odata;
+			if(typeof(odata) === "object"){
+				for(var prop in odata){
+					url = url.replace(":" + prop, odata[prop]);
+				}
 			} else {
-				url += entity.entityName + "/" + odata;
+				if (Number.isNaN(Number(odata)) && odata.indexOf("$") === 0) {
+					url += "?" + odata;
+				} else {
+					url += "/" + odata;
+				}
 			}
 		} else {
 			if (["PUT", "PATCH", "DELETE"].indexOf(method) > -1) {
-				url += entity.entityName + "/" + pk;
-			} else {
-				url += entity.entityName;
+				url += "/" + pk;
 			}
 		}
 	}
@@ -103,11 +152,13 @@ function _resolveContentTransferMethod(headers, data) {
 	if (data) {
 		var l = Buffer.byteLength(data);
 
-		if (l > 4000) {
-			headers['Transfer-Encoding'] = 'chunked';
-		} else {
+		// we took out the Transfer Encoding chunked because it was causing socket hangups
+		// and we could not understand why
+		// if (l > 4000) {
+		// 	headers['Transfer-Encoding'] = 'chunked';
+		// } else {
 			headers['Content-Length'] = l;
-		}
+		// }
 	}
 
 }
@@ -116,7 +167,8 @@ function _request(nsName, rest, entity, data, odata, method) {
 	return new Promise(function (resolve, reject) {
 		//console.log("NOINFOPATHDEBUG", process.env.NOINFOPATHDEBUG);
 		function _doRequest() {
-			var url = _resolveUrl(nsName, rest, entity, data, method, odata),
+			var uri = _resolveUri(entity, method, odata),
+				url = _resolveUrl(nsName, rest, uri, data, method, odata),
 				options = {
 					followAllRedirects: true,
 					rejectUnauthorized: !!!process.env.NOINFOPATHDEBUG,
@@ -131,8 +183,16 @@ function _request(nsName, rest, entity, data, odata, method) {
 				},
 				resp = "",
 				req,
-				payload = data ? JSON.stringify(data) : undefined;
+				payload;
 				//server = [443, 8443].indexOf(options.port) > -1 ? https : http;
+
+			if(data){
+				if(method === "POST") data.CreatedBy = _accessToken.user_id;
+
+				data.ModifiedBy = _accessToken.user_id;
+	
+				payload = JSON.stringify(data);
+			}
 
 			if(payload) {
 				_resolveContentTransferMethod(options.headers, payload);
@@ -178,9 +238,9 @@ function _request(nsName, rest, entity, data, odata, method) {
 									}
 								}
 							} else{
-								resolve({
+								reject({
 									status: res.statusCode,
-									message: "Unknow condition."
+									message: "Unknown condition."
 								});
 							}
 
