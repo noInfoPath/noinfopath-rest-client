@@ -271,6 +271,86 @@ function _request(nsName, rest, entity, data, odata, method) {
 	});
 }
 
+function _requestRaw(rest, url, payload, method) {
+	return new Promise(function (resolve, reject) {
+		function _doRequest() {
+			var
+				options = {
+					followAllRedirects: true,
+					rejectUnauthorized: !!!process.env.NOINFOPATHDEBUG,
+					url: url,
+					host: rest.host,
+					port: rest.port,
+					method: method,
+					headers: {
+						"Content-Type": "application/json",
+						"Authorization": "Bearer " + _accessToken.access_token
+					}
+				};
+
+			request(options, function (err, res, body) {
+				if (err) {
+					reject(err);
+				} else {
+					switch (res.statusCode) {
+						case 400:
+						case 500:
+							reject({
+								status: res.statusCode,
+								message: res.statusMessage
+							});
+							break;
+						case 401:
+							reject({
+								status: res.statusCode,
+								message: res.statusMessage
+							});
+							break;
+						default:
+							if (body) {
+								if (typeof (body) === "object") {
+									resolve(body);
+								} else {
+									if (body.indexOf("<") === 0) {
+										reject(body); //Received unexpected HTML response
+									} else {
+										var tmp;
+
+										try {
+											tmp = !!body ? JSON.parse(body) : [];
+											resolve(tmp);
+										} catch (err) {
+											reject(body);
+										}
+									}
+								}
+							} else {
+								reject({
+									status: res.statusCode,
+									message: "Unknown condition."
+								});
+							}
+
+							break;
+					}
+				}
+			});
+
+		}
+
+		if (_accessToken) {
+			_doRequest();
+		} else {
+			_generateJWT(config.creds)
+				.then(_doRequest)
+				.catch(reject);
+		}
+
+
+
+	});
+}
+
 function _scrubData(data) {
 	for (var p in data) {
 		if (!!data && !!data[p] && !!data[p].toJSON) {
@@ -336,6 +416,8 @@ function _configure(cfg) {
 
 		}
 	}
+
+	inf.request = _requestRaw.bind(null, config.rest);
 
 	return inf;
 }
