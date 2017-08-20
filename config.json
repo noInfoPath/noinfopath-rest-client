@@ -15,6 +15,11 @@
 					"apiPrefix": "/sop/"
 				}
 			}
+		},
+		"rest": {
+			"protocol": "https://",
+			"host": "restapi.sop.hsl.test",
+			"port": 8443
 		}
 	}
 }
