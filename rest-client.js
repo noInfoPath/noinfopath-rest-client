@@ -396,7 +396,7 @@ function _configure(cfg) {
 
 	config = Object.assign({}, config, cfg);
 
-	console.log(config);
+	//console.log(config);
 
 	for (var ns in config.namespaces) {
 		var namespace = config.namespaces[ns],
