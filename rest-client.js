@@ -261,7 +261,7 @@ function _request(nsName, rest, entity, data, odata, method) {
 		if(_accessToken) {
 			_doRequest();
 		} else {
-			_generateJWT(config.creds)
+			_generateJWT(config.rest)
 				.then(_doRequest)
 				.catch(reject);
 		}
@@ -378,6 +378,24 @@ function _destroy(nsName, rest, entity, data) {
 	return _request(nsName, rest, entity, data, null, "DELETE");
 }
 
+module.exports = function(cfg, token) {
+	config = cfg;
+	_accessToken = token;
+
+	return {
+		create: _create,
+		read: _read,
+		update: _update,
+		destroy: _destroy,
+		request: _requestRaw,
+		requestEntity: _request
+	};
+
+};
+
+
+
+
 /*
 	{
 		sop: {
@@ -390,41 +408,3 @@ function _destroy(nsName, rest, entity, data) {
 		}
 	}
 */
-
-function _configure(cfg) {
-	var inf = {};
-
-	config = Object.assign({}, config, cfg);
-
-	//console.log(config);
-
-	for (var ns in config.namespaces) {
-		var namespace = config.namespaces[ns],
-			nsInf = inf[ns] = {};
-
-		for (var s in namespace.schema) {
-
-			var schema = namespace.schema[s];
-
-			if(schema.nsPrefix === ns) {
-				nsInf[s] = {
-					create: _create.bind(null, ns, namespace.rest, schema),
-					read: _read.bind(null, ns, namespace.rest, schema),
-					update: _update.bind(null, ns, namespace.rest, schema),
-					destroy: _destroy.bind(null, ns, namespace.rest, schema)
-				};
-			}
-
-
-		}
-	}
-
-	inf.request = _requestRaw.bind(null, config.rest);
-
-	return inf;
-}
-
-module.exports = function (cfg, accessToken) {
-	_accessToken = accessToken;
-	return _configure(cfg);
-};

@@ -1,0 +1,50 @@
+{
+	"namespaces": {
+		"app": {
+			"schema": {
+				"test": {
+					"storageType": "mysql",
+					"odataParser": "odata-v4-mysql",
+					"uri": "/app/test",
+					"entityName": "test_table",
+					"primaryKey": "id",
+					"nsPrefix": "app",
+					"entityType": "T",
+					"useQueryParams": false,
+					"columns": {
+						"id": {
+							"columnName": "id",
+							"type": "int",
+							"length": null,
+							"nullable": false
+						},
+						"data": {
+							"columnName": "data",
+							"type": "varchar",
+							"length": 255,
+							"nullable": true
+						}
+					},
+					"foreignKeys": {}
+				}
+
+			},
+			"rest": {
+				"protocol": "https://",
+				"host": "restapi.sop.hsl.test",
+				"port": 8443,
+				"apiPrefix": "/sop/"
+			}
+		}
+	},
+	"rest": {
+		"cid": "rgyYEr54ShfxBcDajb2U5Dkun5ibSqJ4",
+		"cs": "8uuya-vA7wXVRhSBsve4NlAmNsjTQgz3aqm7jBgQWqj12e9a-MHRsADHPXSRx4-J",
+		"aud": "https://restapi.sop.heavensentlegal.com"
+	},
+	"creds": {
+		"cid": "rgyYEr54ShfxBcDajb2U5Dkun5ibSqJ4",
+		"cs": "8uuya-vA7wXVRhSBsve4NlAmNsjTQgz3aqm7jBgQWqj12e9a-MHRsADHPXSRx4-J",
+		"aud": "https://restapi.sop.heavensentlegal.com"
+	}
+}

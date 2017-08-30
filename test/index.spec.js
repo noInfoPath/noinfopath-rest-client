@@ -1,8 +1,8 @@
 var platform = "debug",
-	config = require("../config")[platform],
-	restInit = require("../rest-client"),
+	config = require("./fixtures/config"),
+	restInit = require("../index"),
 	assert = require("assert"),
-	sopSamples = require("./fixtures/sop-request.js"),
+	sopSamples = require("./fixtures/sop-request"),
 	okResponse, restClient;
 
 config.creds = sopSamples.testCreds;
@@ -19,20 +19,20 @@ describe("Testing restClient", function(){
 	});
 
 	it("should have an `sop` property", function(){
-		assert(restClient.sop);
+		assert(restClient.app);
 	});
 
-	it("`sop` should have a `requests` property", function(){
-		assert(restClient.sop.requests);
+	it("`sop` should have a `test` property", function(){
+		assert(restClient.app.test);
 	});
 
 	describe("Testing read method", function(){
-		it("`requests` should have a `read` method", function(){
-			assert(typeof(restClient.sop.requests.read) === "function");
+		it("`test` should have a `read` method", function(){
+			assert(typeof(restClient.app.test.read) === "function");
 		});
 
 		it("Read called with no parameters should return atleast one record.", function(done){
-			restClient.sop.requests.read()
+			restClient.app.test.read()
 				.then(function(resp){
 					assert(resp.length > 0);
 					done();
@@ -44,10 +44,9 @@ describe("Testing restClient", function(){
 		});
 
 		it("Read called with ODATA $filter=id eq 1 should match sopSamples.odataFilter fixure.", function(done){
-			restClient.sop.requests.read("$filter=id eq 1")
+			restClient.app.test.read("$filter=id eq 1")
 				.then(function(resp){
 					assert(resp.length === 1);
-					assert.deepEqual(resp[0].id, 1);
 					done();
 				})
 				.catch(function(err){
@@ -55,11 +54,13 @@ describe("Testing restClient", function(){
 				});
 		});
 
-		it("Read called with ODATA $select=id,message_from_email should match sopSamples.odataFilterSelect fixure.", function(done){
-			restClient.sop.requests.read("$filter=id eq 1&$select=id,message_from_email")
+		it("Read called with ODATA $select=data return on record with only the data column.", function(done){
+			restClient.app.test.read("$filter=id eq 1&$select=data")
 				.then(function(resp){
 					assert(resp.length === 1);
-					assert.deepEqual(resp[0].message_from_email, "Patricia.Diaz@compexlegal.com");
+					var row = resp[0];
+					assert.ok(!row.id);
+					assert.ok(row.data);
 					done();
 				})
 				.catch(function(err){
@@ -71,14 +72,14 @@ describe("Testing restClient", function(){
 
 	describe("Testing create method", function(){
 
-		it("`requests` should have a `create` method", function(){
-			assert(typeof(restClient.sop.requests.create) === "function");
+		it("`test` should have a `create` method", function(){
+			assert(typeof(restClient.app.test.create) === "function");
 		});
 
 		it("Created should save test record without errors", function(done){
-			sopSamples.createTest.message_id = sopSamples.createTest.message_id +  Math.trunc(Math.random() * 100);
+			//sopSamples.createTest.message_id = sopSamples.createTest.message_id +  Math.trunc(Math.random() * 100);
 
-			restClient.sop.requests.create(sopSamples.createTest)
+			restClient.app.test.create({data: "foobar: " + (new Date()).toLocaleString()})
 				.then(function(resp){
 					okResponse = resp;
 					done();
@@ -91,7 +92,7 @@ describe("Testing restClient", function(){
 		});
 
 		it("should be able to retrieve the inserted item by id.", function(done){
-			restClient.sop.requests.read(okResponse.insertId)
+			restClient.app.test.read(okResponse.id)
 				.then(function(resp){
 					assert(resp);
 					done();
@@ -104,14 +105,13 @@ describe("Testing restClient", function(){
 	});
 
 	describe("Testing update method", function(){
-		it("`requests` should have a `update` method", function(){
-			assert(typeof(restClient.sop.requests.update) === "function");
+		it("`test` should have a `update` method", function(){
+			assert(typeof(restClient.app.test.update) === "function");
 		});
 
 		it("Update should modify test record without errors", function(done){
-			sopSamples.updateTest.id = okResponse.insertId;
-			sopSamples.updateTest.message_id = sopSamples.createTest.message_id;
-			restClient.sop.requests.update(sopSamples.updateTest)
+			okResponse.data = "foobar: " + (new Date()).toLocaleString();
+			restClient.app.test.update(okResponse)
 				.then(function(resp){
 					if(resp.code) {
 						done(resp);
@@ -125,11 +125,9 @@ describe("Testing restClient", function(){
 		});
 
 		it("should be able to retrieve the updated item by id, and should match updateTest.", function(done){
-			sopSamples.updateTestExpected.id = okResponse.insertId;
-			sopSamples.updateTestExpected.message_id = sopSamples.createTest.message_id;
-			restClient.sop.requests.read(okResponse.insertId)
+			restClient.app.test.read(okResponse.id)
 				.then(function(resp){
-					assert.deepEqual(resp.status, sopSamples.updateTestExpected.status);
+					assert.deepEqual(resp.data, okResponse.data);
 					//console.log(resp);
 					done();
 				})
@@ -141,12 +139,12 @@ describe("Testing restClient", function(){
 	});
 
 	describe("Testing destroy method", function(){
-		it("`requests` should have a `destroy` method", function(){
-			assert(typeof(restClient.sop.requests.destroy) === "function");
+		it("`test` should have a `destroy` method", function(){
+			assert(typeof(restClient.app.test.destroy) === "function");
 		});
 
 		it("destroy should delete test record without errors", function(done){
-			restClient.sop.requests.destroy(sopSamples.updateTest)
+			restClient.app.test.destroy(okResponse)
 				.then(function(resp){
 					if(resp && resp.status && resp.status !== 200) {
 						done(resp);
@@ -160,8 +158,9 @@ describe("Testing restClient", function(){
 		});
 
 		it("should not be able to retrieve the destroyed item by id.", function(done){
-			restClient.sop.requests.read(okResponse.insertId)
+			restClient.app.test.read(okResponse.id)
 				.then(function(resp){
+					console.log(resp);
 					if(resp && resp.status && resp.status !== 404) {
 						done(resp);
 					} else {
@@ -169,7 +168,11 @@ describe("Testing restClient", function(){
 					}
 				})
 				.catch(function(err){
-					done(err);
+					if(err.status === 404) {
+						done();
+					} else {
+						done(err);						
+					}
 				});
 		});
 
