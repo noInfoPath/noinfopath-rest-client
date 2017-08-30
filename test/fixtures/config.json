@@ -37,11 +37,6 @@
 			}
 		}
 	},
-	"rest": {
-		"cid": "rgyYEr54ShfxBcDajb2U5Dkun5ibSqJ4",
-		"cs": "8uuya-vA7wXVRhSBsve4NlAmNsjTQgz3aqm7jBgQWqj12e9a-MHRsADHPXSRx4-J",
-		"aud": "https://restapi.sop.heavensentlegal.com"
-	},
 	"creds": {
 		"cid": "rgyYEr54ShfxBcDajb2U5Dkun5ibSqJ4",
 		"cs": "8uuya-vA7wXVRhSBsve4NlAmNsjTQgz3aqm7jBgQWqj12e9a-MHRsADHPXSRx4-J",

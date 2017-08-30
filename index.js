@@ -1,18 +1,18 @@
-var restClientInit = require("./rest-client");
+var assert = require("assert"),
+	restClientInit = require("./rest-client");
 
 /*
 	{
 		config: {
-			namespace: {},  //NoInfoPath inspired dbSchema configurations.
+			namespaces: {},  //NoInfoPath inspired dbSchema configurations.
 			rest: {}, //NoInfoPath inspired RESTAPI Endpoint Configuration.
 			creds: {} //Auth0 Service Credentials. cid, cs, aud
 		}
 	}
 */
 
-function _configure(cfg) {
-	config = Object.assign({}, cfg);
 
+function _configure(config) {
 	var restClient = restClientInit(config),
 		inf = {};
 
@@ -44,7 +44,28 @@ function _configure(cfg) {
 	return inf;
 }
 
-module.exports = function (cfg, accessToken) {
+module.exports = function (obj1, ob2, str1) {
+	var cfg, accessToken;
+
+	if(typeof(obj1) === "object" && typeof(obj2) === "object" && typeof(str1) === "string") {
+		cfg = {
+			namspaces: obj1,
+			creds: obj2
+		};
+
+		accessToken = str1;
+	} else if(typeof(obj1) === "object" && typeof(obj2) === "object") {
+		cfg = {
+			namspaces: obj1,
+			creds: obj2
+		};
+	} else if(typeof(obj1) === "object" && typeof(str1) === "string") {
+		cfg = obj1;
+		accessToken = str1
+	} else if(typeof(obj1) === "object") {
+		cfg = obj1
+	}
+
 	_accessToken = accessToken;
 	return _configure(cfg);
 };

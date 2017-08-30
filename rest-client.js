@@ -261,7 +261,7 @@ function _request(nsName, rest, entity, data, odata, method) {
 		if(_accessToken) {
 			_doRequest();
 		} else {
-			_generateJWT(config.rest)
+			_generateJWT(config.creds)
 				.then(_doRequest)
 				.catch(reject);
 		}
