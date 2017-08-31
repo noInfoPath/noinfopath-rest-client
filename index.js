@@ -44,7 +44,7 @@ function _configure(config) {
 	return inf;
 }
 
-module.exports = function (obj1, ob2, str1) {
+module.exports = function (obj1, obj2, str1) {
 	var cfg, accessToken;
 
 	if(typeof(obj1) === "object" && typeof(obj2) === "object" && typeof(str1) === "string") {
