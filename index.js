@@ -44,19 +44,19 @@ function _configure(config) {
 	return inf;
 }
 
-module.exports = function (obj1, ob2, str1) {
+module.exports = function (obj1, obj2, str1) {
 	var cfg, accessToken;
 
 	if(typeof(obj1) === "object" && typeof(obj2) === "object" && typeof(str1) === "string") {
 		cfg = {
-			namspaces: obj1,
+			namespaces: obj1,
 			creds: obj2
 		};
 
 		accessToken = str1;
 	} else if(typeof(obj1) === "object" && typeof(obj2) === "object") {
 		cfg = {
-			namspaces: obj1,
+			namespaces: obj1,
 			creds: obj2
 		};
 	} else if(typeof(obj1) === "object" && typeof(str1) === "string") {
