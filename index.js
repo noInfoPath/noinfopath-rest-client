@@ -1,5 +1,5 @@
 var assert = require("assert"),
-	restClientInit = require("./rest-client");
+	restClientInit = require("./rest-client"), _restClient;
 
 /*
 	{
@@ -13,9 +13,9 @@ var assert = require("assert"),
 
 
 function _configure(config) {
-	var restClient = restClientInit(config),
-		inf = {};
+	var	inf = {};
 
+	_restClient = restClientInit(config);
 
 
 	//console.log(config);
@@ -30,16 +30,17 @@ function _configure(config) {
 
 			if(schema.nsPrefix === ns) {
 				nsInf[s] = {
-					create: restClient.create.bind(null, ns, namespace.rest, schema),
-					read: restClient.read.bind(null, ns, namespace.rest, schema),
-					update: restClient.update.bind(null, ns, namespace.rest, schema),
-					destroy: restClient.destroy.bind(null, ns, namespace.rest, schema)
+					create: _restClient.create.bind(null, ns, namespace.rest, schema),
+					read: _restClient.read.bind(null, ns, namespace.rest, schema),
+					update: _restClient.update.bind(null, ns, namespace.rest, schema),
+					destroy: _restClient.destroy.bind(null, ns, namespace.rest, schema)
 				};
 			}
 		}
 	}
 
-	inf.request = restClient.request.bind(null, config.rest);
+	inf.request = _restClient.request.bind(null, config.rest);
+	inf.updateAccessToken = _restClient.updateAccessToken;
 
 	return inf;
 }
