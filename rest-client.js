@@ -169,7 +169,7 @@ function _resolveContentTransferMethod(headers, data) {
 
 }
 
-function _request(nsName, rest, entity, data, odata, method) {
+function _request(nsName, rest, entity, data, odata, method, jwt) {
 	return new Promise(function (resolve, reject) {
 		//console.log("NOINFOPATHDEBUG", process.env.NOINFOPATHDEBUG);
 		function _doRequest() {
@@ -177,14 +177,14 @@ function _request(nsName, rest, entity, data, odata, method) {
 				url = _resolveUrl(nsName, rest, uri, data, method, odata),
 				options = {
 					followAllRedirects: true,
-					rejectUnauthorized: !!!process.env.NOINFOPATHDEBUG,
+					rejectUnauthorized: process.env.NOINFOPATHDEBUG !== "1",
 					url: url,
 					host: rest.host,
 					port: rest.port,
 					method: method,
 					headers: {
 						"Content-Type": "application/json",
-						"Authorization": "Bearer " + _accessToken.access_token
+						"Authorization": "Bearer " + (jwt || _accessToken.access_token)
 					}
 				},
 				resp = "",
@@ -271,7 +271,7 @@ function _request(nsName, rest, entity, data, odata, method) {
 	});
 }
 
-function _requestRaw(rest, url, payload, method) {
+function _requestRaw(rest, url, payload, method, jwt) {
 	return new Promise(function (resolve, reject) {
 		function _doRequest() {
 			var
@@ -284,7 +284,7 @@ function _requestRaw(rest, url, payload, method) {
 					method: method,
 					headers: {
 						"Content-Type": "application/json",
-						"Authorization": "Bearer " + _accessToken.access_token
+						"Authorization": "Bearer " + (jwt || _accessToken.access_token)
 					}
 				};
 
@@ -361,21 +361,29 @@ function _scrubData(data) {
 	return data;
 }
 
-function _create(nsName, rest, entity, data) {
+function _create(nsName, rest, entity, data, jwt) {
 
-	return _request(nsName, rest, entity, _scrubData(data), null, "POST");
+	return _request(nsName, rest, entity, _scrubData(data), null, "POST", jwt);
 }
 
-function _read(nsName, rest, entity, odata) {
-	return _request(nsName, rest, entity, null, odata, "GET");
+function _read(nsName, rest, entity, odata, jwt) {
+	return _request(nsName, rest, entity, null, odata, "GET", jwt);
 }
 
-function _update(nsName, rest, entity, data, odata) {
-	return _request(nsName, rest, entity, _scrubData(data), odata, "PUT");
+function _update(nsName, rest, entity, data, odata, jwt) {
+	return _request(nsName, rest, entity, _scrubData(data), odata, "PUT", jwt);
 }
 
-function _destroy(nsName, rest, entity, data) {
-	return _request(nsName, rest, entity, data, null, "DELETE");
+function _destroy(nsName, rest, entity, data, jwt) {
+	return _request(nsName, rest, entity, data, null, "DELETE", jwt);
+}
+
+function _updateAccessToken(newToken) {
+	if(typeof(newToken) === "string") {
+		_accessToken = {access_token: newToken};
+	} else {
+		_accessToken = newToken;
+	}
 }
 
 module.exports = function(cfg, token) {
@@ -388,7 +396,8 @@ module.exports = function(cfg, token) {
 		update: _update,
 		destroy: _destroy,
 		request: _requestRaw,
-		requestEntity: _request
+		requestEntity: _request,
+		updateAccessToken: _updateAccessToken
 	};
 
 };
