@@ -261,7 +261,7 @@ function _request(nsName, rest, entity, data, odata, method, jwt) {
 		if(_accessToken) {
 			_doRequest();
 		} else {
-			_generateJWT(config.creds)
+			_generateJWT(process.hsl.appConfig.rest)
 				.then(_doRequest)
 				.catch(reject);
 		}
